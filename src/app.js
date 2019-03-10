@@ -22,6 +22,7 @@ app.use(expressLayouts);
 
 // Expres Session
 app.use(session({
+  maxAge: 24 * 60 * 60 * 1000,
   secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,

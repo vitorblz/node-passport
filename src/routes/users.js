@@ -89,6 +89,16 @@ router.post('/login', (req, res, next) => {
     })(req, res, next);
 });
 
+router.get('/login/google',
+  passport.authenticate('google',
+    {
+      scope: ['profile', 'email'],
+    }));
+
+router.get('/login/google/redirect', passport.authenticate('google'), (req, res) => {
+  res.redirect('/dashboard');
+});
+
 router.get('/logout', (req, res) => {
   req.logout();
   req.flash('success_msg', 'You are logged out');

@@ -1,4 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
@@ -26,12 +27,23 @@ module.exports = (passport) => {
     }));
 
   passport.serializeUser((user, done) => {
-    done(null, user.id);
+    done(null, user.email);
   });
 
   passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-      done(err, user);
-    });
+    User.findOne({ email: id }).then(async (user) => {
+      if (!user) return done(null, false, { message: 'Incorrect username.' });
+
+      return done(null, user);
+    }).catch(err => done(err));
   });
+
+  // Use google strategy
+  passport.use(new GoogleStrategy({
+    clientID: '662234176965-35arvt4oieekeee4q9vn46kklr7ii63d.apps.googleusercontent.com',
+    clientSecret: 'PlC6BSE9zqul-nHH0ttS9rK0',
+    callbackURL: '/users/login/google/redirect',
+  }, (request, accessToken, refreshToken, profile, done) => {
+    done(null, { email: profile.emails[0].value });
+  }));
 };
